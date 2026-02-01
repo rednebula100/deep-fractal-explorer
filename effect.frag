@@ -13,16 +13,16 @@ uniform int u_aaQuality;
 uniform float u_noiseSoftness; 
 uniform vec3 u_lightPos; 
 uniform float u_colorAnim; 
-uniform float u_xrayMode; // [추가] X-Ray 활성화 유니폼
+uniform float u_xrayMode;
 
 mat2 rot(float a) {
     float s = sin(a), c = cos(a);
     return mat2(c, -s, s, c);
 }
 
-// 프랙탈 거리 함수 (Distance Estimator)
+// 프랙탈 거리 함수
 vec2 map(vec3 p) {
-    vec3 z = p - u_lookAt; 
+    vec3 z = p;
     vec3 c = z * (u_param.z * 0.95); 
     float dr = 1.0;
     float r = 0.0;
@@ -85,20 +85,16 @@ vec3 render(vec2 uv) {
     float trap = 0.0;
 
     if (u_xrayMode > 0.5) {
-        // --- [획기적 기능] X-Ray Volumetric 모드 ---
         vec3 xrayCol = vec3(0.0);
-        float stepSize = 0.03 * max(0.5, u_zoom); // 줌에 따른 스텝 최적화
+        float stepSize = 0.03 * max(0.5, u_zoom);
         
         for (int i = 0; i < 100; i++) {
             vec3 p = ro + rd * t;
             vec2 res = map(p);
             
-            // 밀도 계산: 표면에 가까울수록 에너지가 쌓임
             float density = exp(-res.x * 12.0); 
-            // 내부 골격 강조: 궤적(trap) 값이 낮은 코어 부분을 발광시킴
             float coreGlow = 1.0 / (1.0 + res.y * 3.0);
             
-            // 기본 색상과 Orbit Trap의 혼합
             vec3 base = mix(u_color, vec3(1.0), res.y * u_param.y);
             
             if (u_colorAnim > 0.5) {
@@ -110,10 +106,9 @@ vec3 render(vec2 uv) {
             t += stepSize;
             if (t > 8.0) break;
         }
-        return xrayCol * exp(-0.15 * t); // 깊이에 따른 감쇄
+        return xrayCol * exp(-0.15 * t);
 
     } else {
-        // --- 일반 모드: 고체 표면 렌더링 (기본 원본 유지) ---
         float precisionTarget = (u_highRes == 1) ? 0.000001 : (u_noiseSoftness / u_param.z) * min(1.0, u_zoom);
 
         for (int i = 0; i < 501; i++) {

@@ -21,9 +21,8 @@ async function main() {
 
     renderer.domElement.addEventListener("webglcontextlost", (event) => {
         event.preventDefault();
-        alert("GPU 과부하 발생!");
+        alert("GPU 과부하 발생으로 WebGL 컨텍스트가 손실되었습니다. 페이지를 새로고침하세요. \t (error: context lost 1440) \n 이 문제가 자주 발생하면, 그래픽 설정을 낮추거나 다른 브라우저를 사용해보세요. •᎑ᵕ ๑");
     }, false);
-
     const [vertRes, fragRes] = await Promise.all([
         fetch('effect.vert'), fetch('effect.frag')
     ]);
@@ -94,7 +93,7 @@ async function main() {
         }
     };
 
-    // --- 좌측 패널: FRACTAL ENGINE 제어 (정밀도 세 자리 지원) ---
+    // --- 좌측 패널: FRACTAL ENGINE 제어 ---
     const powerNum = document.getElementById('powerNum');
     const powerSlider = document.getElementById('powerSlider');
     const colorPicker = document.getElementById('colorPicker');
@@ -105,7 +104,6 @@ async function main() {
     const updatePower = (val) => {
         const v = parseFloat(val);
         uniforms.u_power.value = v;
-        // [수정] 정밀 조절을 위해 소수점 3자리로 표시
         powerNum.value = v.toFixed(3);
         powerSlider.value = v;
         uniforms.u_highRes.value = 0;
@@ -123,7 +121,6 @@ async function main() {
     paramXSlider.addEventListener('input', (e) => {
         const v = parseFloat(e.target.value);
         uniforms.u_param.value.x = v;
-        // [수정] 소수점 3자리 반영
         document.getElementById('paramXVal').innerText = v.toFixed(3);
         uniforms.u_highRes.value = 0;
     });
@@ -131,7 +128,6 @@ async function main() {
     paramYSlider.addEventListener('input', (e) => {
         const v = parseFloat(e.target.value);
         uniforms.u_param.value.y = v;
-        // [수정] 소수점 3자리 반영
         document.getElementById('paramYVal').innerText = v.toFixed(3);
         uniforms.u_highRes.value = 0;
     });
@@ -139,7 +135,6 @@ async function main() {
     paramZSlider.addEventListener('input', (e) => {
         const v = parseFloat(e.target.value);
         uniforms.u_param.value.z = v;
-        // [수정] 소수점 3자리 반영
         document.getElementById('paramZVal').innerText = v.toFixed(3);
         uniforms.u_highRes.value = 0;
     });
@@ -198,7 +193,7 @@ async function main() {
     });
 
     document.getElementById('refreshBtn').addEventListener('click', () => {
-        // [수정] Power 랜덤 범위 및 소수점 반영
+        // Power 랜덤 범위 및 소수점 반영
         const newPower = 4.0 + Math.random() * 8.0;
         updatePower(newPower);
         
@@ -206,14 +201,13 @@ async function main() {
         colorPicker.value = "#" + newCol.getHexString();
         uniforms.u_color.value.set(newCol.r, newCol.g, newCol.b);
 
-        // [수정] Z값이 장벽을 만들지 않도록 0.5 ~ 1.6 범위로 축소
+        // Z값이 장벽을 만들지 않도록 0.5 ~ 1.6 범위로 축소
         const rx = 0.8 + Math.random() * 1.2;
         const ry = 0.2 + Math.random() * 1.3;
         const rz = 0.5 + Math.random() * 1.1; 
         
         uniforms.u_param.value.set(rx, ry, rz);
         
-        // [수정] UI 갱신 시 소수점 3자리 반영
         paramXSlider.value = rx;
         document.getElementById('paramXVal').innerText = rx.toFixed(3);
         paramYSlider.value = ry;
@@ -233,7 +227,7 @@ async function main() {
         e.target.innerText = isLocked ? "Center Lock: ON" : "Center Lock: OFF";
         if (isLocked) targetLookAt.set(0, 0, 0);
     });
-
+    
     window.addEventListener('keydown', (e) => {
         if (e.code === 'Space') document.getElementById('refreshBtn').click();
         if (e.code === 'KeyR') {
@@ -243,6 +237,17 @@ async function main() {
             stopAutoPilot();
         }
         if (e.code === 'KeyS') document.getElementById('renderBtn').click();
+        if (e.code === 'KeyX') {
+        const isXrayNow = uniforms.u_xrayMode.value > 0.5;
+        uniforms.u_xrayMode.value = isXrayNow ? 0.0 : 1.0;
+        
+        const xrayBtn = document.getElementById('xrayBtn');
+        if (xrayBtn) {
+            xrayBtn.innerText = `X-Ray Mode: ${isXrayNow ? "OFF" : "ON"}`;
+        }
+        
+        uniforms.u_highRes.value = 0;
+    }
     });
 
     // --- 조작부 ---
