@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Fractal Explorer - Final</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; font-family: sans-serif; }
+        /* 레이아웃 분리 */
+        #ui-left, #ui-right {
+            position: absolute; top: 20px; z-index: 10;
+            display: flex; flex-direction: column; gap: 10px; width: 260px;
+        }
+        #ui-left { left: 20px; }
+        #ui-right { right: 20px; }
+        
+        .control-group {
+            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(10px);
+            padding: 15px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+        button {
+            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white; padding: 10px; cursor: pointer; border-radius: 6px;
+            transition: 0.2s; width: 100%; text-transform: uppercase; font-weight: bold;
+            margin-bottom: 5px;
+        }
+        button:hover { background: rgba(255, 255, 255, 0.25); }
+        .slider-box { margin-top: 10px; }
+        .slider-box label { font-size: 11px; opacity: 0.8; display: flex; justify-content: space-between; align-items: center; }
+        input[type=range] { width: 100%; margin-top: 8px; cursor: pointer; accent-color: #fff; }
+        /* 숫자 입력창 스타일 */
+        input[type=number] { 
+            background: rgba(255,255,255,0.1); border: 1px solid #555; color: white; 
+            padding: 2px 5px; border-radius: 4px; width: 50px; font-size: 11px;
+        }
+        p { font-size: 10px; color: #888; margin-top: 8px; }
+    </style>
+</head>
+<body>
+    <div id="ui-left">
+        <div class="control-group">
+            <label style="font-size: 12px; font-weight: bold; color: #aaa;">FRACTAL ENGINE</label>
+            <button id="refreshBtn" style="margin-top:10px;">Randomize All</button>
+            
+            <div class="slider-box">
+                <label>Power <input type="number" id="powerNum" step="0.1" value="8.0"></label>
+                <input type="range" id="powerSlider" min="2.0" max="16.0" step="0.001" value="8.0">
+            </div>
+
+            <div class="slider-box">
+                <label>Base Color <input type="color" id="colorPicker" value="#80ccff"></label>
+            </div>
+
+            <div class="slider-box">
+                <label>Shape Detail (X) <span id="paramXVal">1.200</span></label>
+                <input type="range" id="paramXSlider" min="0.5" max="3.0" step="0.001" value="1.2">
+            </div>
+            <div class="slider-box">
+                <label>Color Contrast (Y) <span id="paramYVal">0.500</span></label>
+                <input type="range" id="paramYSlider" min="0.0" max="2.0" step="0.001" value="0.5">
+            </div>
+            <div class="slider-box">
+                <label>Distortion (Z) <span id="paramZVal">1.000</span></label>
+                <input type="range" id="paramZSlider" min="0.1" max="5.0" step="0.001" value="1.0">
+            </div>
+        </div>
+
+        <div style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px;">
+            <p style="color: #ddd; margin: 0; line-height: 1.6;">
+                🖱️ 우클릭: 이동 / 휠: 줌<br>
+                ⌨️ Space: 랜덤 / R: 리셋
+            </p>
+        </div>
+    </div>
+
+    <div id="ui-right">
+        <div class="control-group">
+            <button id="xrayBtn" style="background: rgba(0, 188, 212, 0.3);">X-Ray Mode: OFF</button>
+            <button id="lockBtn">Center Lock: OFF</button>
+            <button id="autoPilotBtn" style="background: rgba(33, 150, 243, 0.3);">Auto-Pilot: OFF</button>
+            <button id="colorAnimBtn" style="background: rgba(156, 39, 176, 0.3);">Color Anim: OFF</button>
+            <button id="screenshotBtn" style="background: rgba(255, 193, 7, 0.3);">Save Screenshot</button>
+        </div>
+
+        <div class="control-group">
+            <label style="font-size: 12px; font-weight: bold; color: #aaa;">VISUALS</label>
+            <div class="slider-box">
+                <label>Smoothness <span id="noiseVal">0.001</span></label>
+                <input type="range" id="noiseSlider" min="0.0001" max="0.01" step="0.0001" value="0.001">
+            </div>
+            <div class="slider-box">
+                <label>Sun Direction <span id="lightVal">0.8</span></label>
+                <input type="range" id="lightSlider" min="0" max="6.28" step="0.1" value="0.8">
+            </div>
+        </div>
+
+        <div class="control-group">
+            <button id="renderBtn" style="background: rgba(76, 175, 80, 0.3);">High-Res Render</button>
+            <div class="slider-box">
+                <label>AA Quality <span id="aaVal">2x2</span></label>
+                <input type="range" id="aaSlider" min="1" max="4" value="2">
+            </div>
+            <div class="slider-box">
+                <label>Ray Steps <span id="stepsVal">200</span></label>
+                <input type="range" id="stepsSlider" min="40" max="500" value="200">
+            </div>
+        </div>
+    </div>
+
+    <script type="importmap">
+        { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+    </script>
+    <script type="module" src="sketch.js"></script>
+</body>
+</html>
